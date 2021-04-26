@@ -2,7 +2,7 @@ import pygame, sys
 
 import networking
 
-s = networking.Server('192.168.1.15', 4000, True)
+s = networking.Server('192.168.1.15', 4000, False)
 
 pygame.init()
 
@@ -36,7 +36,7 @@ class Bullet:
         self.x = x
         self.y = y
     
-p = Player(300,400)
+p = Player(200,300)
 b = Bullet(0,0)
         
 while True:
@@ -59,12 +59,10 @@ while True:
     screen.fill((0,0,0))
     p.Draw()
 
-    s.Send(p)
-
     p2 = s.Receive(1000)
 
-    print(p2.x,p2.y)
-
     pygame.draw.rect(screen, (255,0,0), pygame.Rect(p2.x, p2.y, 60, 60))
-
+    
+    s.Send(p)
+    
     pygame.display.flip()
