@@ -24,14 +24,58 @@ class Snake:
     def SpawnTail(self):
         self.tails.append(Tail(-100, -100))
 
-    def CalculateTails():
+    def CalculateTails(self):
         for p in range(len(self.tails)-1, -1, -1):
             if p == 0:
-                self.tails[p].x = head.oldx
-                self.tails[p].y = head.oldy
+                self.tails[p].x = self.oldx
+                self.tails[p].y = self.oldy
             else:
-                self.tails[p].x = tails[p-1].x;
-                self.tails[p].y = tails[p-1].y;
+                self.tails[p].x = self.tails[p-1].x;
+                self.tails[p].y = self.tails[p-1].y;
+
+    def MoveHead(self, d):
+        if d.x != 0:
+            x = self.x + d.x * 60
+            if len(self.tails) > 0:
+                if x != self.tails[0].x:
+                    self.oldx = self.x
+                    self.oldy = self.y
+                    self.x += d.x * 60
+                    self.CalculateTails()
+            else:
+                self.x += d.x * 60
+        elif d.y != 0:
+            y = self.y + d.y * 60
+            if len(self.tails) > 0:
+                if y != self.tails[0].y:
+                    self.oldx = self.x
+                    self.oldy = self.y
+                    self.y += d.y * 60
+                    self.CalculateTails()
+            else:
+                self.y += d.y * 60
+
+    def CheckSnakeCollides(self):
+        if len(self.tails) == 0:
+            return False
+    
+        for t in self.tails:
+            if t.x == self.x and t.y == self.y:
+                return True
+
+    def EatFeed(self, feed):
+        if self.x == feed.x and self.y == feed.y:
+            feed.x = -100 ## place feed somewhere out of screen
+            feed.y = -100
+            self.SpawnTail()
+            return True
+        else:
+            return False
+
+    def DrawSnake(self):
+        for t in self.tails:
+            pygame.draw.rect(screen, (255,0,0), pygame.Rect((t.x, t.y), (SNAKEBLOCKSIZE-10, SNAKEBLOCKSIZE-10)))
+        pygame.draw.rect(screen, (0,255,0), pygame.Rect((self.x, self.y), (SNAKEBLOCKSIZE-10, SNAKEBLOCKSIZE-10)))
 
     
 class Head:
@@ -48,75 +92,21 @@ class Tail:
 
 ####
 CurrentDir = -1
-head = Head(180,60)
-tails = []
 feed = pygame.Vector2(0,0) 
 ###
+
+snake = Snake(180,60)
 
 def SpawnFeed():
     r1 = WIDTH / SNAKEBLOCKSIZE
     r2 = HEIGHT / SNAKEBLOCKSIZE
-    x = random.randrange(0, r1-1) * 60
-    y = random.randrange(0, r2-2) * 60
+    x = random.randrange(0, r1) * 60
+    y = random.randrange(0, r2) * 60
     feed.x = x
     feed.y = y
 
-def SpawnTail():
-    tails.append(Tail(-100, -100))
-
-def CalculateTails():
-    for p in range(len(tails)-1, -1, -1):
-        if p == 0:
-            tails[p].x = head.oldx
-            tails[p].y = head.oldy
-        else:
-            tails[p].x = tails[p-1].x;
-            tails[p].y = tails[p-1].y;
-
-def MoveHead(d):
-    if d.x != 0:
-        x = head.x + d.x * 60
-        if len(tails) > 0:
-            if x != tails[0].x:
-                head.oldx = head.x
-                head.oldy = head.y
-                head.x += d.x * 60
-                CalculateTails()
-        else:
-            head.x += d.x * 60
-    elif d.y != 0:
-        y = head.y + d.y * 60
-        if len(tails) > 0:
-            if y != tails[0].y:
-                head.oldx = head.x
-                head.oldy = head.y
-                head.y += d.y * 60
-                CalculateTails()
-        else:
-            head.y += d.y * 60
-
-def CheckSnakeCollides():
-    if len(tails) == 0:
-        return False
-    
-    for t in tails:
-        if t.x == head.x and t.y == head.y:
-            return True
-            
-def EatFeed():
-    if head.x == feed.x and head.y == feed.y:
-        feed.x = -100 ## place feed somewhere out of screen
-        feed.y = -100
-        SpawnTail()
-        SpawnFeed()
-        
-def DrawSnake():
-    for t in tails:
-        pygame.draw.rect(screen, (255,0,0), pygame.Rect((t.x, t.y), (SNAKEBLOCKSIZE-10, SNAKEBLOCKSIZE-10)))
-    pygame.draw.rect(screen, (0,255,0), pygame.Rect((head.x, head.y), (SNAKEBLOCKSIZE-10, SNAKEBLOCKSIZE-10)))
-
-
 SpawnFeed()
+
 while True:
     for event in pygame.event.get():
         if(event.type == pygame.QUIT):
@@ -144,13 +134,17 @@ while True:
             elif CurrentDir == Directions.RIGHT:
                 dir.x = 1
                 dir.y = 0
-            MoveHead(dir)
-            EatFeed()
+            #MoveHead(dir)
+            #EatFeed()
 
+            snake.MoveHead(dir)
+            if snake.EatFeed(feed):
+                SpawnFeed()
+            
     screen.fill((0,0,0))
-    DrawSnake()
+    snake.DrawSnake()
 
-    if CheckSnakeCollides():
+    if snake.CheckSnakeCollides():
         print("Game Over!")
         sys.exit()
     
