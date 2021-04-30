@@ -1,5 +1,7 @@
 import socket, pickle, sys, time
 
+sleepTime = 0.07
+
 class Server:
     def __init__(self, ip_addr, port, isServer):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,7 +25,7 @@ class Server:
         else:
             self.socket.send(serialized)
         
-        time.sleep(0.1)
+        time.sleep(sleepTime)
         
     def Receive(self, size):
         if self.isServer==True:
