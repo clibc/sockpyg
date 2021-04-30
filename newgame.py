@@ -7,8 +7,8 @@ class Directions(Enum):
     LEFT = 2
     RIGHT = 3
 
-WIDTH = 540
-HEIGHT = 540
+WIDTH = 1080
+HEIGHT = 840
 SNAKEBLOCKSIZE = 60
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -56,10 +56,10 @@ feed = pygame.Vector2(0,0)
 def SpawnFeed():
     r1 = WIDTH / SNAKEBLOCKSIZE
     r2 = HEIGHT / SNAKEBLOCKSIZE
-    x = random.randrange(0, r1) * 60
-    y = random.randrange(0,r2) * 60
+    x = random.randrange(0, r1-1) * 60
+    y = random.randrange(0, r2-2) * 60
     feed.x = x
-    feed.y = x
+    feed.y = y
 
 def SpawnTail():
     tails.append(Tail(-100, -100))
